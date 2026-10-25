@@ -1,0 +1,60 @@
+{
+  "model": "gpt-4.1",
+  "call_allowance_usd": 0.5,
+  "daily_allowance_usd": 2.0,
+  "trial_allowance_usd": 10.0,
+  "estimated_rates": {
+    "input_per_million": 2.0,
+    "output_per_million": 8.0,
+    "per_search_call": 0.01
+  },
+  "max_search_calls_per_request": 4,
+  "max_age_hours": 72,
+  "minimum_deadline_hours": 6,
+  "minimum_reward_usd": 25,
+  "max_human_minutes": 5,
+  "max_verifications_per_run": 1,
+  "max_jobs_per_run": 1,
+  "cooldown_after_scans": 6,
+  "auto_deliver": false,
+  "delivery_profiles": {},
+  "lanes": [
+    {
+      "name": "public-data-requests",
+      "queries": [
+        "\"will pay\" \"dataset\"",
+        "\"budget\" \"research\" \"need\"",
+        "\"paid\" \"public records\""
+      ],
+      "focus": "Explicit fixed-price requests for small sourced public datasets and factual research; exclude job boards and bounty platforms."
+    },
+    {
+      "name": "niche-forums",
+      "queries": [
+        "\"will pay\" \"find\" \"document\"",
+        "\"looking to hire\" \"research\" \"budget\"",
+        "\"need\" \"list of\" \"pay\""
+      ],
+      "focus": "Public specialist forums: suppliers, business operations, software communities. A complaint without an explicit payment offer is not a lead."
+    },
+    {
+      "name": "reddit-requests",
+      "queries": [
+        "site:reddit.com \"hiring\" \"research\"",
+        "site:reddit.com \"will pay\" \"data\"",
+        "site:reddit.com \"budget\" \"dataset\""
+      ],
+      "focus": "Original buyer requests in niche communities. Check comments for filled/solved status. No direct scraping, no seller advertisements, no private-person research."
+    },
+    {
+      "name": "public-social-requests",
+      "queries": [
+        "site:x.com \"will pay\" \"research\"",
+        "site:x.com \"paid task\"",
+        "\"looking for someone\" \"data collection\" \"budget\""
+      ],
+      "focus": "Public indexed posts only. Do not infer live access to X or private Facebook groups. Skip unavailable originals."
+    }
+  ],
+  "minimum_confirmed_reward_usd": 5
+}

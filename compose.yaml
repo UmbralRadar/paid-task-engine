@@ -1,0 +1,23 @@
+services:
+  paid-task-engine:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8088:8080"
+    volumes:
+      - engine-data:/data
+      - ./config.json:/app/config.json:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    pids_limit: 64
+    networks: [paid-task-net]
+volumes:
+  engine-data:
+networks:
+  paid-task-net:
+    name: paid-task-net

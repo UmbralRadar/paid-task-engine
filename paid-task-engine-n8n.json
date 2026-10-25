@@ -1,0 +1,291 @@
+{
+  "name": "Paid Task Engine v2 - Control and Telegram",
+  "nodes": [
+    {
+      "id": "9adac97d-cb2e-4025-9b1a-c305b8604618",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "64fae363-1670-4563-ab85-ab5b55bc15f9",
+      "name": "8 AM and 8 PM Mexico City",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        180
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8,20 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3b13f9f5-326e-4f23-8480-d64660e9d8d2",
+      "name": "Engine settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{engineUrl:'http://paid-task-engine:8080', startedAt:Date.now()}}];"
+      }
+    },
+    {
+      "id": "330cbfc3-3292-4be8-83e9-c6d7b5b20900",
+      "name": "Start run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Engine settings').first().json.engineUrl + '/run' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"discover\":true}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "aadcf9f2-252d-4091-9bb6-d857e6ad7795",
+      "name": "Wait 30 seconds",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      }
+    },
+    {
+      "id": "4fd44527-517c-4e98-a07d-f66033f3d50d",
+      "name": "Check run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('Engine settings').first().json.engineUrl + '/runs/' + $json.run_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "773a7c61-018d-4b17-b62b-29eb60ba8445",
+      "name": "Still running",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd851742-8061-48fb-8a6d-e49ed2a8a46b",
+              "leftValue": "={{ $json.status === 'running' && Date.now() - $('Engine settings').first().json.startedAt < 900000 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "0acb74e1-e7d8-4b47-9adc-2a0ae39d7702",
+      "name": "Telegram digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const r=$input.first().json; return [{json:{text:(r.status==='running' ? 'Engine still running after 15 minutes. Inspect run '+r.run_id+'; do not start duplicate work.' : r.report || 'Run ended with status '+r.status).slice(0,3800)}}];"
+      }
+    },
+    {
+      "id": "28b0444d-74f8-4eff-b895-3c73aff79e9e",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        100
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "REPLACE_WITH_YOUR_CHAT_ID",
+        "text": "={{ $json.text.replace(/&/g,\"&amp;\").replace(/</g,\"&lt;\").replace(/>/g,\"&gt;\") }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true,
+          "appendAttribution": false
+        }
+      }
+    },
+    {
+      "id": "7d553ef3-9f6f-4dd1-894b-82ab21286a73",
+      "name": "SETUP",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -580
+      ],
+      "parameters": {
+        "content": "## Paid Task Engine v2\nDeploy the included Python/Docker service first. This is an orchestrator, not a standalone worker.\n\n1. Create Header Auth credential: Name Authorization; Value Bearer YOUR_ENGINE_TOKEN. Select it in Start run and Check run.\n2. In Engine settings set the service URL. Docker n8n must share paid-task-net; host n8n can use http://127.0.0.1:8088.\n3. Select Telegram credential and replace Chat ID.\n4. Test manually, then publish.\n\nDiscovery: public indexed requests, no marketplace dependence.\nFulfillment: confirmed research/dataset tasks submitted to /tasks.\nAuto delivery: off until you configure a buyer profile and enable it.\nNo automated negotiation, social posting, wallet access or guaranteed income.\n\nRead README.md for scope, cost allowance caveats, intake, and delivery.",
+        "height": 520,
+        "width": 480
+      }
+    }
+  ],
+  "connections": {
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "Engine settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8 AM and 8 PM Mexico City": {
+      "main": [
+        [
+          {
+            "node": "Engine settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engine settings": {
+      "main": [
+        [
+          {
+            "node": "Start run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start run": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 seconds": {
+      "main": [
+        [
+          {
+            "node": "Check run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run": {
+      "main": [
+        [
+          {
+            "node": "Still running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still running": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 seconds",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram digest": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City",
+    "executionTimeout": 1200
+  },
+  "pinData": {},
+  "tags": []
+}

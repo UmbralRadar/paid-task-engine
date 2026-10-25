@@ -1,0 +1,15 @@
+{
+  "compose.yaml": "b8e3da60ab6c990c62e6e35994cd6a4083a2c450309f6ee5713614144167e0ac",
+  "README.md": "e3fb5cc7c69127166f8ecb0d95f12bde7ccd03bc6f809a990bc7bf12e18fd1db",
+  "task.example.json": "798aa05dd4619b979d2c3b1bf765efadbe203adf6af222d7dfc025940e23280c",
+  "paid-task-engine-n8n.json": "af40ecb2ac2408a84751e4f683bc7a8a483f32bdad70e77203003b98c1c12155",
+  ".env.example": "65f754d44728840d2a070f4e0bb32c68aef0b39fe1bdfe34b4cccfbece4be1da",
+  "Dockerfile": "9e66b021eaef9987b836a1efe73d0b5c4485909eee7906e18818718e5ae44e7f",
+  ".gitignore": "e50d972b7a42ecee40f4ae2f54881ff935acbf04a432c2bb248f7b6e5b858f87",
+  ".dockerignore": "9bdc3a96f59ab08e6c7e93ee305e430549122677d9196a06dfc74a9d0875c07f",
+  "build_n8n.py": "b9b0957afceb00a5c5cea3b16afea91e7a10f428b896ed7f3945f8985f5b73f7",
+  "ctl.py": "72e266f4e70f73993235a9df660db08c0332dc10cd545d44a93c31c0a2f98ca9",
+  "config.json": "0b766bdbe247ee806fe057e7c952ac5469528763d4530705ebe6a247993bbbcd",
+  "engine.py": "05fe4c1f25385759b4e68477343a3be8a2be18a66575822a72f911c71116aa00",
+  "tests/test_engine.py": "cc147765f1186865cbb7ff88b3a5ed1993346b831f34fa4e68c125abfdb163ba"
+}

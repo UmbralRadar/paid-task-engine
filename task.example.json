@@ -1,0 +1,15 @@
+{
+  "external_id": "buyer-order-001",
+  "title": "Example only: compare public API documentation",
+  "kind": "dataset",
+  "brief": "Compare the documented public rate limits of three APIs named in the buyer brief. This example is not a real paid task; replace it with the actual agreed scope and APIs.",
+  "requirements": ["One row per named API", "Columns: provider, documented rate limit, unit, limitations", "Each row cites the official documentation", "Report missing published limits explicitly"],
+  "source_urls": [],
+  "reward_usd": 50,
+  "deadline": "REPLACE_WITH_FUTURE_ISO_TIMESTAMP",
+  "ai_allowed": false,
+  "assignment_confirmed": false,
+  "payment_terms": "REPLACE_WITH_AGREED_TERMS",
+  "terms_reference": "REPLACE_WITH_EMAIL_OR_ORDER_REFERENCE",
+  "delivery_profile": ""
+}
